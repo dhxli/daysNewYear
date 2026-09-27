@@ -35,6 +35,9 @@ jobs:
           go mod tidy
           git diff --exit-code go.mod
 
+      - name: Verify dependecies
+        run: go mod verify
+
       - name: Build
         run: go build ./...
 
