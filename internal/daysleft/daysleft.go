@@ -9,3 +9,5 @@ func Until(from time.Time) int {
 
 	return int(nextNewYear.Sub(from).Hours() / 24)
 }
+
+// проверка PR
