@@ -38,3 +38,23 @@ func TestDaysLeftHandler_BadInput(t *testing.T) {
 		t.Errorf("ожидался статус 400, получен %d", rec.Code)
 	}
 }
+
+func TestHealthzHandler(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	rec := httptest.NewRecorder()
+
+	HealthzHandler(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("ожидался статус 200, получен %d", rec.Code)
+	}
+
+	var body healthResponse
+	if err := json.NewDecoder(rec.Body).Decode(&body); err != nil {
+		t.Fatalf("не удалось разобрать JSON: %v", err)
+	}
+
+	if body.Status != "ok" {
+		t.Errorf("ожидался status=ok, получено %q", body.Status)
+	}
+}

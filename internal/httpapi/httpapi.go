@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -17,8 +18,13 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
+type healthResponse struct {
+	Status string `json:"status"`
+}
+
 func DaysLeftHandler(w http.ResponseWriter, r *http.Request) {
 	dateParam := r.URL.Query().Get("date")
+	slog.Info("получен запрос", "path", r.URL.Path, "date", dateParam)
 
 	var target time.Time
 	if dateParam == "" {
@@ -26,6 +32,7 @@ func DaysLeftHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		parsed, err := time.Parse("2006-01-02", dateParam)
 		if err != nil {
+			slog.Warn("некорректная дата", "input", dateParam, "error", err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(errorResponse{Error: "неверный формат даты, ожидается YYYY-MM-DD"})
@@ -39,7 +46,14 @@ func DaysLeftHandler(w http.ResponseWriter, r *http.Request) {
 		DaysLeft: daysleft.Until(target),
 	}
 
+	slog.Info("запрос обработан", "date", resp.Date, "days_left", resp.DaysLeft)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp)
+}
+
+func HealthzHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(healthResponse{Status: "ok"})
 }

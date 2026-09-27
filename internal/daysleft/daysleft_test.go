@@ -27,3 +27,11 @@ func TestUntil(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkUntil(b *testing.B) {
+	date := time.Date(2024, 2, 15, 0, 0, 0, 0, time.UTC)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		Until(date)
+	}
+}
